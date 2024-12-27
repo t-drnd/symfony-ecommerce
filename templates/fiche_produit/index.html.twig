@@ -1,0 +1,14 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<h1>Détails du produit</h1>
+
+<h2>{{ produit.name }}</h2>
+<img src="{{ produit.photo }}" alt="{{ produit.name }}">
+<p>Description : {{ produit.description }}</p>
+<p>Prix : {{ produit.price }} €</p>
+<p>Stock disponible : {{ produit.stock }}</p>
+
+<a href="{{ path('app_home') }}">Retour à l'accueil</a>
+
+{% endblock %}

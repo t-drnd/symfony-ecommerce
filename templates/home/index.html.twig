@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Page d'accueil{% endblock %}
+
+{% block body %}
+    <h1>Nos produits</h1>
+    
+    <div class="product-list" style="display: flex; gap: 20px; flex-wrap: wrap;">
+        {% for produit in produits %}
+            <div class="product" style="border: 1px solid #ddd; padding: 10px; width: 200px;">
+                <h2>{{ produit.name }}</h2>
+                <p>Prix : {{ produit.price }} €</p>
+                <p>Description : {{ produit.description }}</p>
+                <button style="background-color: #28a745; color: white; border: none; padding: 5px 10px;">
+                    Ajouter au panier
+                </button>
+            </div>
+        {% else %}
+            <p>Aucun produit disponible pour le moment.</p>
+        {% endfor %}
+    </div>
+{% endblock %}

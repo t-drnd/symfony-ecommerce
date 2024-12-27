@@ -15,4 +15,12 @@ class CategorieController extends AbstractController
             'controller_name' => 'CategorieController',
         ]);
     }
+
+    #[Route('/home', name: 'app_home')]
+    public function home(): Response
+    {
+        return $this->render('home/index.html.twig', [
+            'controller_name' => 'HomeController',
+        ]);
+    }
 }

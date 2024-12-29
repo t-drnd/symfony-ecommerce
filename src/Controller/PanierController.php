@@ -10,6 +10,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 
 class PanierController extends AbstractController
@@ -45,7 +46,7 @@ class PanierController extends AbstractController
     }
 
     #[Route('/panier/add/{id}', name: 'app_panier_add')]
-    public function add($id, ProduitsRepository $produitsRepository, EntityManagerInterface $em): RedirectResponse
+    public function add($id, ProduitsRepository $produitsRepository, EntityManagerInterface $em, Request $request): RedirectResponse
     {
         $user = $this->getUser();
 
@@ -85,7 +86,9 @@ class PanierController extends AbstractController
 
         $em->flush();
 
-        return $this->redirectToRoute('app_panier');
+        $this->addFlash('success', 'Le panier a été mis à jour avec succès.');
+
+        return $this->redirect($request->headers->get('referer') ?? $this->generateUrl('app_panier'));
     }
 
     #[Route('/panier/remove/{id}', name: 'app_panier_remove')]

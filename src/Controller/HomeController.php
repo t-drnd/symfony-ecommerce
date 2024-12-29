@@ -7,6 +7,7 @@ use App\Form\ProduitAddType;
 use App\Repository\ProduitsRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +29,7 @@ class HomeController extends AbstractController
         ]);
     }
 
-    #[IsGranted('ROLE_ADMIN')]
+    #[Security("is_granted('ROLE_ADMIN') or is_granted('ROLE_SUPER_ADMIN')")]
     #[Route(path: '/add', name: 'app_produit_add')]
     public function addProduct(Request $request, EntityManagerInterface $em, TranslatorInterface $translator): Response
     {

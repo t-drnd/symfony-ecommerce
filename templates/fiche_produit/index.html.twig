@@ -4,10 +4,25 @@
 <h1>Détails du produit</h1>
 
 <h2>{{ produit.name }}</h2>
-<img src="{{ produit.photo }}" alt="{{ produit.name }}">
+<img src="{{asset('/uploads/' ~ produit.photo)}}" alt="{{ produit.name }}">
 <p>Description : {{ produit.description }}</p>
 <p>Prix : {{ produit.price }} €</p>
 <p>Stock disponible : {{ produit.stock }}</p>
+<form action="{{ path('app_panier_add', { id: produit.id }) }}" method="POST">
+    <button type="submit" style="background-color:rgb(45, 75, 52); color: white; border: none; padding: 5px 10px;">
+        Ajouter au panier
+    </button>
+</form>
+
+
+<form action="{{path('app_produit_delete', {id: produit.id})}}" method="POST">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token('delete' ~ produit.id) }}">
+    <button type="submit" style="background: transparent; border: none; cursor: pointer;">
+        Supprimer ce produit
+    </button>
+</form>
+
+<a href="{{ path('app_produit_modify', {id: produit.id}) }}">Modifier ce produit</a>
 
 <a href="{{ path('app_home') }}">Retour à l'accueil</a>
 

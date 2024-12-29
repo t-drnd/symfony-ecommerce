@@ -8,7 +8,7 @@
         <h3>Nom : {{ User.name }}</h3>
         <h3>Mail : {{ User.email }}</h3>
 
-        <a href="">Modifier mes informations</a>
+        <a href="{{path('app_account_modify', {id: User.id}) }}">Modifier mes informations</a>
     </div>
 
     <div>

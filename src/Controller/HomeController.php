@@ -57,7 +57,7 @@ class HomeController extends AbstractController
             }
             $em->persist($produit);
             $em->flush();
-            $this->addFlash('success', $translator->trans('success.produit_added'));
+            $this->addFlash('success', 'Le produit a été ajouté avec succès.');
             return $this->redirectToRoute('app_home');
         }
         return $this->render('produit/add.html.twig', [

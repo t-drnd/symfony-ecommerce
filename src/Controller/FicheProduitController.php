@@ -55,6 +55,8 @@ class FicheProduitController extends AbstractController
             $em -> flush();
         }
 
+        $this->addFlash('success', 'Le produit a été supprimé avec succès.');
+
         return $this -> redirectToRoute('app_home');
     }
 
@@ -109,6 +111,8 @@ class FicheProduitController extends AbstractController
             $em->flush();
             return $this->redirectToRoute('app_fiche_produit', ['id' => $produit->getId()]);
         }
+
+        $this->addFlash('success', 'Le produit a été mis à jour avec succès.');
 
         return $this->render('fiche_produit/modify.html.twig', [
             'form' => $form->createView(),

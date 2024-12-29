@@ -111,6 +111,8 @@ class PanierController extends AbstractController
             }
         }
 
+        $this->addFlash('success', 'Le panier a été supprimé avec succès.');
+
         return $this->redirectToRoute('app_panier');
     }
 
@@ -132,6 +134,8 @@ class PanierController extends AbstractController
             $em->persist($panier);
             $em->flush();
         }
+
+        $this->addFlash('success', 'Le paiement a été effectué avec succès.');
 
         return $this->redirectToRoute('app_home');
     }

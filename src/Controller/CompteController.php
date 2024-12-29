@@ -76,6 +76,9 @@ class CompteController extends AbstractController
             if($form->isSubmitted() && $form->isValid()){
                 return $this->redirectToRoute('app_compte');
             }
+
+            $this->addFlash('success', 'Le compte a été mis à jour avec succès.');
+
             return $this->render('compte/edit.html.twig', [
                 'form' => $form->createView(),
             ]);

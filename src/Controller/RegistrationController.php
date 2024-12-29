@@ -12,20 +12,9 @@ use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\SecurityBundle\Security;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
-use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class RegistrationController extends AbstractController
 {
-    private TokenStorageInterface $tokenStorage;
-    private SessionInterface $session;
-
-    public function __construct(TokenStorageInterface $tokenStorage, SessionInterface $session)
-    {
-        $this->tokenStorage = $tokenStorage;
-        $this->session = $session;
-    }
-
     #[Route('/register', name: 'app_register')]
     public function register(Request $request, UserPasswordHasherInterface $userPasswordHasher, EntityManagerInterface $entityManager, Security $security): Response
     {
@@ -48,7 +37,7 @@ class RegistrationController extends AbstractController
             $entityManager->flush();
 
             // Connecter l'utilisateur après l'inscription
-            $this->loginUser($user, $security);
+            $this->loginUser($user, $request, $security);
 
             // Rediriger vers une page sécurisée
             return $this->redirectToRoute('app_home');
@@ -72,11 +61,13 @@ class RegistrationController extends AbstractController
         ]);
     }
 
-    private function loginUser(User $user, Security $security)
+    private function loginUser(User $user, Request $request, Security $security)
     {
-        // Loguer l'utilisateur après l'inscription
+        // Récupérer le token actuel (peut être vide pour un nouvel utilisateur)
         $token = $security->getToken();
-        $this->tokenStorage->setToken($token); // Utilisation du service TokenStorageInterface
-        $this->session->set('_security_main', serialize($token)); // Utilisation du service SessionInterface
+
+        // Stocker le token dans la session via la requête
+        $session = $request->getSession();
+        $session->set('_security_main', serialize($token));
     }
 }

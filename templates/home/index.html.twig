@@ -3,15 +3,24 @@
 {% block title %}Page d'accueil{% endblock %}
 
 {% block body %}
-    <h1>Nos produits</h1>
+
+    {% if not is_granted('ROLE_USER') %}
     <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 10px; margin-bottom: 30px;">
-            <a href="{{ path('app_login') }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                Se connecter
-            </a>
-            <a href="{{ path('app_register') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
-                S'inscrire
-            </a>
+        <a href="{{ path('app_login') }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            Se connecter
+        </a>
+         <a href="{{ path('app_register') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+            S'inscrire
+        </a>
     </div>
+    {% else %}
+        <div class="mb-3">
+            <a href="{{ path('app_logout') }}">Logout</a>
+        </div>
+    {% endif %}
+    
+    <h1>Nos produits</h1>
+
     
     <div class="product-list" style="display: flex; gap: 20px; flex-wrap: wrap;">
         {% for produit in produits %}
@@ -33,5 +42,11 @@
         {% else %}
             <p>Aucun produit disponible pour le moment.</p>
         {% endfor %}
+    </div>
+
+    <div>
+        {% if is_granted('ROLE_ADMIN') %}
+        <a href="{{path('app_produit_add')}}">Ajouter un produit</a>
+        {% endif %}
     </div>
 {% endblock %}

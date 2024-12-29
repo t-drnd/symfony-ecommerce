@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -40,4 +41,17 @@ class UserRepository extends ServiceEntityRepository
     //            ->getOneOrNullResult()
     //        ;
     //    }
+
+    public function findByRegistrationDate(\DateTime $date): array
+{
+    $dateDuJour = $date->setTime(0, 0, 0); // Minuit de la journée actuelle
+
+    return $this->createQueryBuilder('u')
+        ->where('u.creationDate >= :dateDuJour') // Utilisateurs inscrits aujourd'hui
+        ->setParameter('dateDuJour', $dateDuJour)
+        ->orderBy('u.creationDate', 'DESC') // Tri du plus récent au plus ancien
+        ->getQuery()
+        ->getResult();
+}
+
 }

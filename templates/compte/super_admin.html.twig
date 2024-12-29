@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Super Admin{% endblock %}
+
+{% block body %}
+    <div>
+        <h4>Paniers non achetés :</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Numéro du Panier</th>
+                    <th>Utilisateur</th>
+                    <th>Contenu du Panier</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for panier in paniersNonAchetes %}
+                    <tr>
+                        <td>{{ panier.id }}</td>
+                        <td>{{ panier.user.firstname }} {{ panier.user.name }}</td>
+                        <td>
+                            {% for contenu in panier.contenuPaniers %}
+                                {{ contenu.produit.name }} ({{ contenu.quantity }})<br>
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">Aucun panier non acheté.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <h4>Utilisateurs inscrits aujourd'hui :</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for utilisateur in utilisateursAujourdHui %}
+                    <tr>
+                        <td>{{ utilisateur.firstname }} {{ utilisateur.name }}</td>
+                        <td>{{ utilisateur.email }}</td>
+                    </tr>
+                {% else %}
+                    <tr>
+                        <td colspan="3">Aucun utilisateur inscrit aujourd'hui.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

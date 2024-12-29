@@ -2,33 +2,39 @@
 
 namespace App\Controller;
 
+use App\Entity\ContenuPanier;
+use App\Entity\Panier;
+use App\Entity\PanierItem;
+use App\Repository\ProduitsRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Repository\ProduitsRepository;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 class PanierController extends AbstractController
 {
     #[Route('/panier', name: 'app_panier')]
-    public function index(SessionInterface $session, ProduitsRepository $produitsRepository): Response
+    public function index(EntityManagerInterface $em): Response
     {
-        // Récupère le panier depuis la session
-        $panier = $session->get('panier', []);
-        
-        // Préparer les détails des produits pour affichage
-        $panierWithDetails = [];
-        $total = 0;
+        $user = $this->getUser();
 
-        foreach ($panier as $id => $quantity) {
-            $produit = $produitsRepository->find($id);
-            if ($produit) {
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $panier = $em->getRepository(Panier::class)->findOneBy(['User' => $user, 'purchase_state' => false]);
+
+        $total = 0;
+        $panierWithDetails = [];
+
+        if ($panier) {
+            foreach ($panier->getContenuPaniers() as $item) {
                 $panierWithDetails[] = [
-                    'produit' => $produit,
-                    'quantity' => $quantity,
+                    'produit' => $item->getProduit(),
+                    'quantity' => $item->getQuantity(),
                 ];
-                $total += $produit->getPrice() * $quantity;
+                $total += $item->getProduit()->getPrice() * $item->getQuantity();
             }
         }
 
@@ -39,40 +45,91 @@ class PanierController extends AbstractController
     }
 
     #[Route('/panier/add/{id}', name: 'app_panier_add')]
-    public function add($id, SessionInterface $session): RedirectResponse
+    public function add($id, ProduitsRepository $produitsRepository, EntityManagerInterface $em): RedirectResponse
     {
-        // Récupère le panier depuis la session
-        $panier = $session->get('panier', []);
+        $user = $this->getUser();
 
-        // Ajoute ou met à jour la quantité pour le produit
-        if (!empty($panier[$id])) {
-            $panier[$id]++;
-        } else {
-            $panier[$id] = 1;
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
         }
 
-        // Enregistre le panier dans la session
-        $session->set('panier', $panier);
+        $produit = $produitsRepository->find($id);
 
-        // Redirige vers la page panier
+        if (!$produit) {
+            return $this->redirectToRoute('app_panier');
+        }
+
+        $panier = $em->getRepository(Panier::class)->findOneBy(['User' => $user, 'purchase_state' => false]);
+
+        if (!$panier) {
+            $panier = new Panier();
+            $panier->setUser($user);
+            $panier->setPurchaseState(false);
+            $panier->setPurchaseDate(new \DateTime());
+            $em->persist($panier);
+        }
+
+        $panierItem = $panier->getContenuPaniers()->filter(fn($item) => $item->getProduit() === $produit)->first();
+
+        if ($panierItem) {
+            $panierItem->setQuantity($panierItem->getQuantity() + 1);
+        } else {
+            $panierItem = new ContenuPanier();
+            $panierItem->setProduit($produit);
+            $panierItem->setQuantity(1);
+            $panierItem->setPanier($panier);
+            $panierItem->setDate(new \DateTime());
+
+            $em->persist($panierItem);
+        }
+
+        $em->flush();
+
         return $this->redirectToRoute('app_panier');
     }
 
     #[Route('/panier/remove/{id}', name: 'app_panier_remove')]
-    public function remove($id, SessionInterface $session): RedirectResponse
+    public function remove($id, EntityManagerInterface $em): RedirectResponse
     {
-        // Récupère le panier depuis la session
-        $panier = $session->get('panier', []);
+        $user = $this->getUser();
 
-        // Supprime le produit du panier si présent
-        if (!empty($panier[$id])) {
-            unset($panier[$id]);
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
         }
 
-        // Enregistre le panier dans la session
-        $session->set('panier', $panier);
+        $panier = $em->getRepository(Panier::class)->findOneBy(['User' => $user, 'purchase_state' => false]);
 
-        // Redirige vers la page panier
+        if ($panier) {
+            $panierItem = $panier->getContenuPaniers()->filter(fn($item) => $item->getProduit()->getId() == $id)->first();
+
+            if ($panierItem) {
+                $em->remove($panierItem);
+                $em->flush();
+            }
+        }
+
         return $this->redirectToRoute('app_panier');
+    }
+
+    #[Route('/panier/paiement', name: 'payer_panier')]
+    public function paiement(EntityManagerInterface $em): RedirectResponse
+    {
+        $user = $this->getUser();
+
+        if (!$user) {
+            return $this->redirectToRoute('app_login');
+        }
+
+        $panier = $em->getRepository(Panier::class)->findOneBy(['User' => $user, 'purchase_state' => false]);
+
+        if ($panier) {
+            $panier->setPurchaseState(true);
+            $panier->setPurchaseDate(new \DateTime());
+
+            $em->persist($panier);
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('app_home');
     }
 }

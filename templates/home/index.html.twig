@@ -4,6 +4,14 @@
 
 {% block body %}
     <h1>Nos produits</h1>
+    <div style="display: flex; justify-content: flex-end; margin-top: 20px; gap: 10px; margin-bottom: 30px;">
+            <a href="{{ path('app_login') }}" style="background-color: #007bff; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                Se connecter
+            </a>
+            <a href="{{ path('app_register') }}" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">
+                S'inscrire
+            </a>
+    </div>
     
     <div class="product-list" style="display: flex; gap: 20px; flex-wrap: wrap;">
         {% for produit in produits %}
@@ -11,13 +19,16 @@
                 <h2>{{ produit.name }}</h2>
                 <p>Prix : {{ produit.price }} €</p>
                 <p>Description : {{ produit.description }}</p>
-                <a href="{{ path('app_fiche_produit', { id: produit.id }) }}" 
-                   style="display: inline-block; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none; padding: 5px 10px; border-radius: 3px;">
-                    Voir les détails
-                </a>
-                <button style="background-color: #28a745; color: white; border: none; padding: 5px 10px; margin-top: 10px;">
-                    Ajouter au panier
-                </button>
+
+                <!-- Formulaire pour ajouter au panier -->
+                <form action="{{ path('app_panier_add', { id: produit.id }) }}" method="POST">
+                    <button type="submit" style="background-color:rgb(45, 75, 52); color: white; border: none; padding: 5px 10px;">
+                        Ajouter au panier
+                    </button>
+                </form>
+
+                <!-- Lien pour voir les détails -->
+                <a href="{{ path('app_fiche_produit', { id: produit.id }) }}" style="display: inline-block; margin-top: 10px; background-color: #007bff; color: white; text-decoration: none; padding: 5px 10px; border-radius: 3px;">Voir les détails</a>
             </div>
         {% else %}
             <p>Aucun produit disponible pour le moment.</p>

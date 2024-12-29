@@ -2,6 +2,10 @@
 
 {% block body %}
 
-    {{ form(form)}}
+    {{ form_start(form)}}
+
+        <button type="submit">Modifier</button>
+
+    {{ form_end(form)}}
 
 {% endblock %}
